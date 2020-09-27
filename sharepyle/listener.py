@@ -15,18 +15,20 @@ logger = logging.getLogger(f"logger.{this.stem}")
 class Listener:
     def __init__(
             self, 
-            folder_id: str,
+            folder: Union[Folder, str],
             sql_path: Path,
+            activity: str = 'upload',
             callback: Callable[[Event], None] = None
     ):
-        self.folder = Folder(folder_id)
+        self.folder = Folder(folder) if isinstance(folder, str) else folder
         self.sql_path = sql_path
+        self.activity = activity
         self.callback = callback
 
     def __enter__(self):
         self.connection = sqlite3.connect(self.sql_path)
         self.cursor = self.connection.cursor()
-        self.events = self.folder.get_events()
+        self.events = self.folder.get_events(activity=self.activity)
         return self
 
     def __exit__(self, type, value, traceback):
@@ -35,7 +37,7 @@ class Listener:
 
     def record_event(self, event: Event):
         sql = '''
-            INSERT INTO uploads(event_id,timestamp,parent_id,path,filename,full_name,email)
+            INSERT INTO uploads(event_id,timestamp,parent_id,path,item_name,full_name,email)
             VALUES(?,?,?,?,?,?,?)  
             '''
         self.cursor.execute(sql, event.sql)

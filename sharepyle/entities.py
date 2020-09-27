@@ -208,8 +208,8 @@ class Event(ConfigModel):
     url: HttpUrl = None
     odata_type: str = None
     odata_metadata: HttpUrl = None
-    upload_file_name: str = None
-    upload_item: Any = None
+    event_item_name: str = None
+    event_item: Any = None
     requester: Requester = None
 
     def json(self, exclude: dict = None, by_alias: bool = True):
@@ -217,8 +217,8 @@ class Event(ConfigModel):
             'requester': ...,
             'keys': ...,
             'attributes': ...,
-            'upload_file_name': ...,
-            'upload_item': ...
+            'event_item_name': ...,
+            'event_item': ...
         }
         return super().json(
             exclude=exclude,
@@ -246,17 +246,17 @@ class Event(ConfigModel):
             self.time_stamp,
             self.parent_id,
             self.path,
-            self.upload_file_name,
+            self.event_item_name,
             self.full_name,
             self.email
         )
 
-    @validator('upload_file_name', pre=True, always=True)
-    def extract_upload_file_name(cls, v, values):
+    @validator('event_item_name', pre=True, always=True)
+    def extract_event_item_name(cls, v, values):
         return values.get('additional_info').split('/')[-1]
 
-    @validator('upload_item', pre=True, always=True)
-    def get_upload_item(cls, v, values) -> File:
+    @validator('event_item', pre=True, always=True)
+    def get_event_item(cls, v, values) -> File:
         if not v:
             parent_folder_id = values.get('parent_id')
             parent_folder = Folder(parent_folder_id)
@@ -265,15 +265,15 @@ class Event(ConfigModel):
             items = [
                 child
                 for child in parent_folder.children
-                if child.name == values.get('upload_file_name')
+                if child.name == values.get('event_item_name')
             ]
             return items[0] if items else v
         return v
 
     @validator('event_id', pre=True)
     def validate_event_id(cls, v, values):
-        if upload_item := values.get('upload_item'):
-            v = upload_item.id
+        if event_item := values.get('event_item'):
+            v = event_item.id
         return v
 
 
@@ -290,7 +290,11 @@ class MainClass(ConfigModel):
                 folder_info in attributes]
 
     @staticmethod
-    def get_activity_log(item_id: Union[str, Folder] = None, last: str = None):
+    def get_activity_log(
+            item_id: Union[str, Folder] = None,
+            last: str = None,
+            activity: str = 'upload'
+    ):
         requester = SF_REQUESTER
         format = r'%Y-%m-%dT%H:%M:%S.000Z'
         item_id = item_id if isinstance(item_id, str) else item_id.id
@@ -298,6 +302,11 @@ class MainClass(ConfigModel):
 
         end_date = dateparser.parse('tomorrow').strftime(format)
         start_date = dateparser.parse(f"a {last} ago").strftime(format)
+
+        activity_types = {
+            'upload': ['Upload', 'ZipUpload'],
+            'new_folder': ['NewFolder']
+        }
 
         requester(
             'GET',
@@ -307,7 +316,7 @@ class MainClass(ConfigModel):
                 '$top': 1000,
                 'itemID': item_id,
                 'userID': None,
-                'activityTypes': ['Upload', 'ZipUpload'],
+                'activityTypes': activity_types.get(activity, ['Upload', 'ZipUpload']),
                 'startDate': start_date,
                 'endDate': end_date,
                 'isDeep': True
@@ -315,15 +324,16 @@ class MainClass(ConfigModel):
         )
         events = {}
         for event in requester.json.get('value'):
-            if 'welocalize' not in event.get('Email'):
-                events.setdefault(event.get('AdditionalInfo'), []).append(event)
+            if 'welocalize' not in event.get('Email') and activity == 'upload':
+                continue
+            events.setdefault(event.get('AdditionalInfo'), []).append(event)
         new_events = [
             event
             for version in events.values()
             if (
                     (upload := max(version, key=lambda x: parser.parse(x.get('TimeStamp'))))
                     and (event := Event(**upload))
-                    and event.upload_item is not None
+                    and event.event_item is not None
             )
         ]
         return Event.s(
@@ -884,10 +894,11 @@ class Folder(File):
                 files=files
             )
 
-    def get_events(self, last: str = None):
+    def get_events(self, last: str = None, activity: str = 'upload'):
         return MainClass.get_activity_log(
             item_id=self.id,
-            last=last
+            last=last,
+            activity=activity
         )
 
 
