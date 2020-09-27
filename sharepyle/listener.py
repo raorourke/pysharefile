@@ -37,13 +37,13 @@ class Listener:
 
     def record_event(self, event: Event):
         sql = '''
-            INSERT INTO uploads(event_id,timestamp,parent_id,path,item_name,full_name,email)
+            INSERT INTO events(event_id,timestamp,parent_id,path,item_name,full_name,email)
             VALUES(?,?,?,?,?,?,?)  
             '''
         self.cursor.execute(sql, event.sql)
     
     def event_recorded(self, event: Event):
-        sql = f"SELECT count(*) FROM uploads WHERE event_id = ?"
+        sql = f"SELECT count(*) FROM events WHERE event_id = ?"
         self.cursor.execute(sql, (event.event_id,))
         data = self.cursor.fetchone()[0]
         return data != 0
