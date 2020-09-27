@@ -29,6 +29,7 @@ __all__ = [
     'Folder',
     'FavoriteFolder',
     'ParentFolder',
+    'TemplateFoler',
     'ProductionFolder'
 ]
 
