@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "pysharefile"
+version = "0.1.0"
+description = ""
+authors = ["Ryan O'Rourke <ryan.orourke@welocalize.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+dateparser = "^0.7.6"
+dpath = "^2.0.1"
+fuzzywuzzy = "^0.18.0"
+http-requester = "^0.1.0"
+pydantic = "^1.6.1"
+requests = "^2.24.0"
+bs4 = "^0.0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
