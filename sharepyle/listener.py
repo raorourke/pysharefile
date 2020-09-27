@@ -6,7 +6,7 @@ import sqlite3
 import datetime
 from typing import List, Union, Callable
 
-from pysharefile.entities import Folder, Event
+from .entities import Folder, Event
 
 this = Path(__file__)
 logger = logging.getLogger(f"logger.{this.stem}")
