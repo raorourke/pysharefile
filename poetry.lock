@@ -147,7 +147,7 @@ description = ""
 name = "http-requester"
 optional = false
 python-versions = ">=3.8,<4.0"
-version = "0.1.0"
+version = "1.0.0.dev1"
 
 [package.dependencies]
 aiohttp = ">=3.6.2,<4.0.0"
@@ -370,7 +370,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "cb5b2c58505aa919684a50057b29c2d6bcebc9ad6252af13e24fa1da7df858a2"
+content-hash = "9020d0409a567ab6ab709352723ac48bc32b657571e9619452f137ae5fbabe72"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -439,8 +439,8 @@ fuzzywuzzy = [
     {file = "fuzzywuzzy-0.18.0.tar.gz", hash = "sha256:45016e92264780e58972dca1b3d939ac864b78437422beecebb3095f8efd00e8"},
 ]
 http-requester = [
-    {file = "http_requester-0.1.0-py3-none-any.whl", hash = "sha256:8a7bc0cb6f8df16f7d36881ecbbf5f5e62e48343f48d14d5fa8c08414276c487"},
-    {file = "http_requester-0.1.0.tar.gz", hash = "sha256:9346ef0693a6fd04430bc54005c24e3200731dd705b5a91b5d0a60cbad55e43d"},
+    {file = "http_requester-1.0.0.dev1-py3-none-any.whl", hash = "sha256:fbd160ffceb890666654bd781b38a08bad7e5aa8e4490c5aaf4dbec561f73be5"},
+    {file = "http_requester-1.0.0.dev1.tar.gz", hash = "sha256:0268ed631a8e8fc96b7a951fc515b8c147af1af9bf903d356bc6e1088b53cbce"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},

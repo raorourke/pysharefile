@@ -1,2 +1,2 @@
-from weimagination.pysharefile.entities import *
-from weimagination.pysharefile.listener import Listener
+from .entities import *
+from .listener import Listener
