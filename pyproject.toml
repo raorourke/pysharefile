@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sharepyle"
-version = "1.0.0.dev1"
+version = "1.0.1.dev1"
 description = ""
 authors = ["Ryan O'Rourke <ryan.orourke@welocalize.com>"]
 
