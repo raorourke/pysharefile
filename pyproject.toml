@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pysharefile"
+name = "sharepyle"
 version = "0.1.0"
 description = ""
 authors = ["Ryan O'Rourke <ryan.orourke@welocalize.com>"]
