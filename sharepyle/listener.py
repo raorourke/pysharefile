@@ -51,9 +51,9 @@ class Listener:
     def run(self) -> None:
         for event in self.events:
             if self.event_recorded(event):
-                logger.debug(f"Skipping already processed file: {event.upload_file_name}")
+                logger.debug(f"Skipping already processed event: {event.event_item_name}")
                 continue
-            logger.info(f"Processing file: {event.upload_file_name}")
+            logger.info(f"Processing event: {event.event_item_name}")
             self.record_event(event)
             if (callback := self.callback):
                 callback(
