@@ -941,7 +941,7 @@ class ProductionFolder(Folder):
             template_info: str = None,
             **attributes
     ):
-        if folder_id and not attributes:
+        if folder_id:
             requester = Requester(
                 f"{BASE_URL}/Items({folder_id})",
                 creds=sf_creds
