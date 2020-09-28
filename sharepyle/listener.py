@@ -29,6 +29,7 @@ class Listener:
         if not self.sql_path.exists():
             with open(self.sql_path, 'w') as f:
                 f.write()
+            self.create_table()
         self.connection = sqlite3.connect(self.sql_path)
         self.cursor = self.connection.cursor()
         self.events = self.folder.get_events(activity=self.activity)
