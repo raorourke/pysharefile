@@ -306,7 +306,8 @@ class MainClass(ConfigModel):
 
         activity_types = {
             'upload': ['Upload', 'ZipUpload'],
-            'new_folder': ['NewFolder']
+            'new_folder': ['NewFolder'],
+            'zip': ['ZipUpload']
         }
 
         requester(
@@ -600,6 +601,22 @@ class File(ConfigModel):
 
     def share(self):
         return Share.create(self.id)
+
+    def download(self, path: Path = None):
+        self.requester(
+            'GET',
+            'Download',
+            params={
+                'includeAllVersions': False,
+                'includeDeleted': False
+            }
+        )
+        path = path or this.parent / 'tmp'
+        path.mkdir(exist_ok=True)
+        dl = path / self.name
+        with open(dl, 'wb') as f:
+            f.write(self.requester.content)
+        return dl
 
 
 class Folder(File):
