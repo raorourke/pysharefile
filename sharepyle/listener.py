@@ -26,6 +26,9 @@ class Listener:
         self.callback = callback
 
     def __enter__(self):
+        if not self.sql_path.exists():
+            with open(self.sql_path, 'w') as f:
+                f.write()
         self.connection = sqlite3.connect(self.sql_path)
         self.cursor = self.connection.cursor()
         self.events = self.folder.get_events(activity=self.activity)
@@ -34,6 +37,23 @@ class Listener:
     def __exit__(self, type, value, traceback):
         self.connection.commit()
         self.connection.close()
+
+    def create_table(self):
+        connection = sqlite3.connect(self.sql_path)
+        cursor = connection.cursor()
+        sql = '''
+            CREATE TABLE events(
+            event_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+            timestamp TEXT NOT NULL,
+            parent_id TEXT NOT NULL,
+            path TEXT NOT NULL,
+            item_name TEXT NOT NULL,
+            full_name TEXT NOT NULL,
+            email TEXT NOT NULL)
+            '''
+        cursor.execute(sql)
+        connection.commit()
+        connection.close()
 
     def record_event(self, event: Event):
         sql = '''
