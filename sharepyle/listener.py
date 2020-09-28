@@ -28,7 +28,7 @@ class Listener:
     def __enter__(self):
         if not self.sql_path.exists():
             with open(self.sql_path, 'w') as f:
-                f.write()
+                f.write('')
             self.create_table()
         self.connection = sqlite3.connect(self.sql_path)
         self.cursor = self.connection.cursor()
