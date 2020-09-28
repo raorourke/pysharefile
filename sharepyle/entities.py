@@ -899,7 +899,7 @@ class Folder(File):
         chunk_uri = self.requester.json.get('ChunkUri')
         with ExitStack() as stack:
             file_stack = [
-                (fname, stack.enter_context(open(fname, 'rb')))
+                (f"{fname}", stack.enter_context(open(f"{fname}", 'rb')))
                 for fname in filenames
             ]
             files = {

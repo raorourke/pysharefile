@@ -1,10 +1,7 @@
 import logging
-import os
-import json
-from pathlib import Path
 import sqlite3
-import datetime
-from typing import List, Union, Callable
+from pathlib import Path
+from typing import Union, Callable
 
 from .entities import Folder, Event
 
@@ -14,7 +11,7 @@ logger = logging.getLogger(f"logger.{this.stem}")
 
 class Listener:
     def __init__(
-            self, 
+            self,
             folder: Union[Folder, str],
             sql_path: Path,
             activity: str = 'upload',
@@ -67,17 +64,17 @@ class Listener:
             VALUES(?,?,?,?,?,?,?)  
             '''
         self.cursor.execute(sql, event.sql)
-    
+
     def event_recorded(self, event: Event):
         sql = f"SELECT count(*) FROM events WHERE event_id = ?"
         self.cursor.execute(sql, (event.event_id,))
         data = self.cursor.fetchone()[0]
         return data != 0
-    
+
     def run(self) -> None:
         for event in self.events:
             if self.event_recorded(event):
-                logger.debug(f"Skipping already processed event: {event.event_item_name}")
+                logger.info(f"Skipping already processed event: {event.event_item_name}")
                 continue
             logger.info(f"Processing event: {event.event_item_name}")
             self.record_event(event)
