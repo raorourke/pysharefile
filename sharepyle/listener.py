@@ -18,11 +18,13 @@ class Listener:
             folder: Union[Folder, str],
             sql_path: Path,
             activity: str = 'upload',
+            is_deep: bool = True,
             callback: Callable[[Event], None] = None
     ):
         self.folder = Folder(folder) if isinstance(folder, str) else folder
         self.sql_path = sql_path
         self.activity = activity
+        self.is_deep = is_deep
         self.callback = callback
 
     def __enter__(self):
@@ -32,7 +34,10 @@ class Listener:
             self.create_table()
         self.connection = sqlite3.connect(self.sql_path)
         self.cursor = self.connection.cursor()
-        self.events = self.folder.get_events(activity=self.activity)
+        self.events = self.folder.get_events(
+            activity=self.activity,
+            is_deep=self.is_deep
+        )
         return self
 
     def __exit__(self, type, value, traceback):

@@ -293,7 +293,8 @@ class MainClass(ConfigModel):
     def get_activity_log(
             item_id: Union[str, Folder] = None,
             last: str = None,
-            activity: str = 'upload'
+            activity: str = 'upload',
+            is_deep: bool = True
     ):
         requester = SF_REQUESTER
         format = r'%Y-%m-%dT%H:%M:%S.000Z'
@@ -319,7 +320,7 @@ class MainClass(ConfigModel):
                 'activityTypes': activity_types.get(activity, ['Upload', 'ZipUpload']),
                 'startDate': start_date,
                 'endDate': end_date,
-                'isDeep': True
+                'isDeep': is_deep
             }
         )
         events = {}
