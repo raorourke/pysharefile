@@ -895,11 +895,17 @@ class Folder(File):
                 files=files
             )
 
-    def get_events(self, last: str = None, activity: str = 'upload'):
+    def get_events(
+            self,
+            last: str = None,
+            activity: str = 'upload',
+            is_deep: bool = True
+    ):
         return MainClass.get_activity_log(
             item_id=self.id,
             last=last,
-            activity=activity
+            activity=activity,
+            is_deep=is_deep
         )
 
 
