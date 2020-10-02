@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 import re
+import asyncio
+import aiohttp
 from collections import deque
 from contextlib import ExitStack
 from datetime import datetime
@@ -889,28 +891,64 @@ class Folder(File):
             self,
             *filenames: str
     ):
-        self.requester(
-            'GET',
-            'Upload',
-            params={
-                'Method': 'Standard'
-            }
-        )
-        chunk_uri = self.requester.json.get('ChunkUri')
-        with ExitStack() as stack:
-            file_stack = [
-                (f"{fname}", stack.enter_context(open(f"{fname}", 'rb')))
-                for fname in filenames
-            ]
-            files = {
-                f"File{i}": file
-                for i, file in enumerate(file_stack, start=1)
-            }
+
+        def sync_upload(fnames):
             self.requester(
-                'POST',
-                url=chunk_uri,
-                files=files
+                'GET',
+                'Upload',
+                params={
+                    'Method': 'Standard'
+                }
             )
+            chunk_uri = self.requester.json.get('ChunkUri')
+            with ExitStack() as stack:
+                file_stack = [
+                    (f"{fname}", stack.enter_context(open(f"{fname}", 'rb')))
+                    for fname in fnames
+                ]
+                files = {
+                    f"File{i}": file
+                    for i, file in enumerate(file_stack)
+                }
+                self.requester(
+                    'POST',
+                    url=chunk_uri,
+                    files=files
+                )
+
+        async def async_upload(fnames):
+
+            async def _upload(filename):
+                async with aiohttp.ClientSession() as session:
+                    self.requester(
+                        'GET',
+                        'Upload',
+                        session=session,
+                        params={
+                            'Method': 'Standard'
+                        }
+                    )
+                    chunk_uri = self.requester.json.get('ChunkUri')
+                    with open(filename, 'rb') as upfile:
+                        data = {
+                            'File1': (filename, upfile)
+                        }
+                        self.requester(
+                            'POST',
+                            chunk_uri,
+                            session=session,
+                            data=data
+                        )
+
+            await asyncio.gather(*[
+                _upload(fname)
+                for fname in fnames
+            ])
+
+        if len(filenames) == 1:
+            return sync_upload(filenames)
+        return asyncio.run(async_upload(filenames))
+
 
     def get_events(
             self,
