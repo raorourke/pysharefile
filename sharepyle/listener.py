@@ -89,8 +89,8 @@ class NewFolderListener(Listener):
             self,
             folder: Union[Folder, str],
             sql_path: Path,
-            is_deep: bool = False,
-            callback: Callable[[Event], None] = None
+            callback: Callable[[Event], None] = None,
+            is_deep: bool = False
     ):
         super().__init__(
             folder,
@@ -106,8 +106,8 @@ class UploadListener(Listener):
             self,
             folder: Union[Folder, str],
             sql_path: Path,
-            is_deep: bool = True,
-            callback: Callable[[Event], None] = None
+            callback: Callable[[Event], None] = None,
+            is_deep: bool = True
     ):
         super().__init__(
             folder,
