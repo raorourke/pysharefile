@@ -82,3 +82,37 @@ class Listener:
                 callback(
                     event
                 )
+
+
+class NewFolderListener(Listener):
+    def __init__(
+            self,
+            folder: Union[Folder, str],
+            sql_path: Path,
+            is_deep: bool = False,
+            callback: Callable[[Event], None] = None
+    ):
+        super().__init__(
+            folder,
+            sql_path,
+            activity='new_folder',
+            is_deep=is_deep,
+            callback=callback
+        )
+
+
+class UploadListener(Listener):
+    def __init__(
+            self,
+            folder: Union[Folder, str],
+            sql_path: Path,
+            is_deep: bool = True,
+            callback: Callable[[Event], None] = None
+    ):
+        super().__init__(
+            folder,
+            sql_path,
+            activity='upload',
+            is_deep=is_deep,
+            callback=callback
+        )
