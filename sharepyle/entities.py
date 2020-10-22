@@ -8,7 +8,7 @@ from collections import deque
 from contextlib import ExitStack
 from datetime import datetime
 from pathlib import Path
-from typing import List, Type, Any, Dict, Callable, Union
+from typing import Type, Any, Callable, Union
 
 import dateparser
 import dpath.util
@@ -53,7 +53,7 @@ class MetaConfig(BaseModel):
 
 
 class ConfigModel(MetaConfig):
-    keys: List[str] = ['name', 'id']
+    keys: list[str] = ['name', 'id']
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -105,7 +105,7 @@ class ConfigModel(MetaConfig):
         def __init__(
                 self,
                 *data,
-                keys_override: List[str] = None,
+                keys_override: list[str] = None,
                 transform_func: Callable[[str], str] = None
         ):
             super(ListModel, self).__init__(
@@ -115,7 +115,7 @@ class ConfigModel(MetaConfig):
 
             def index_attributes(
                     klasses,
-                    keys_override: List[str] = None,
+                    keys_override: list[str] = None,
                     transform_func: Callable[[str], str] = None
             ):
                 keys = keys_override if keys_override else cls.__fields__.get('keys').default
@@ -146,7 +146,7 @@ class ConfigModel(MetaConfig):
                         {
                             '__annotations__': {
                                 'klass': Type[cls],
-                                'klasses': List[cls]
+                                'klasses': list[cls]
                             },
                             '__module__': cls.__module__
                         }
@@ -164,7 +164,7 @@ class ConfigModel(MetaConfig):
             {
                 '__annotations__': {
                     'klass': Type[cls],
-                    'klasses': List[cls]
+                    'klasses': list[cls]
                 },
                 '__module__': cls.__module__,
                 '__init__': __init__
@@ -175,7 +175,7 @@ class ConfigModel(MetaConfig):
     def s(
             cls,
             *klasses,
-            keys_override: List[str] = None,
+            keys_override: list[str] = None,
             transform_func: Callable[[str], str] = None
     ):
         ClassList = cls.construct_list_class()
@@ -188,7 +188,7 @@ class ConfigModel(MetaConfig):
 
 
 class Event(ConfigModel):
-    keys: List[str] = ['upload_file_name']
+    keys: list[str] = ['upload_file_name']
     parent_id: str = None
     additional_info: str = None
     event_id: str = None
@@ -423,7 +423,7 @@ class Info(ConfigModel):
 
 
 class Share(ConfigModel):
-    keys: List[str] = ['alias_id']
+    keys: list[str] = ['alias_id']
     alias_id: str = None
     share_type: str = None
     title: str = None
@@ -482,7 +482,7 @@ class Share(ConfigModel):
 
 
 class Note(ConfigModel):
-    keys: List[str] = ['name', 'id']
+    keys: list[str] = ['name', 'id']
     name: str = None
     file_name: str = None
     creation_date: datetime = None
@@ -530,7 +530,7 @@ class Note(ConfigModel):
 
 
 class File(ConfigModel):
-    keys: List[str] = ['name']
+    keys: list[str] = ['name']
     parent: ParentFolder = None
     hash: str = None
     virus_status: str = None
@@ -623,7 +623,7 @@ class File(ConfigModel):
 
 class Folder(File):
     id: str = None
-    keys: List[str] = ['name']
+    keys: list[str] = ['name']
     parent: ParentFolder = None
     file_count: int = None
     info: Info = None
@@ -967,7 +967,7 @@ class TemplateFolder(Folder):
 class ProductionFolder(Folder):
     pattern: str = None
     template: TemplateFolder = None
-    production_folders: List[Folder]
+    production_folders: list[Folder]
 
     def __init__(
             self,
@@ -1056,8 +1056,8 @@ class User(ConfigModel):
     date_created: datetime = None
     domain: str = None
     email: str = None
-    email_addresses: List[Dict[str, Any]] = None
-    emails: List[str] = None
+    email_addresses: list[dict[str, Any]] = None
+    emails: list[str] = None
     first_name: str = None
     full_name: str = None
     full_name_short: str = None
@@ -1067,14 +1067,14 @@ class User(ConfigModel):
     is_deleted: bool = False
     last_name: str = False
     referred_by: str = None
-    roles: List[str] = None
+    roles: list[str] = None
     total_shared_files: int = None
     username: str = None
     odata_metadata: HttpUrl = None
     odata_type: str = None
     url: HttpUrl = None
     requester: Requester = None
-    attributes: Dict[str, Any] = None
+    attributes: dict[str, Any] = None
 
     @classmethod
     def create(
