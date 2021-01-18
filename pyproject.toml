@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "sharepyle"
-version = "1.0.20"
+version = "1.0.21"
 description = ""
 authors = ["Ryan O'Rourke <ryan.orourke@welocalize.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-dateparser = "^0.7.6"
+dateparser = "^1.0.0"
 dpath = "^2.0.1"
 fuzzywuzzy = "^0.18.0"
 pydantic = "^1.6.1"
