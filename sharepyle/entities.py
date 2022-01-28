@@ -944,7 +944,7 @@ class Folder(File):
             is_deep=is_deep
         )
 
-    def get_child_item_by_name(self, query: str):
+    def find_child_item(self, query: str):
         results = []
         for child in self.children:
             if query in child.name:
