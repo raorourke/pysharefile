@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import logging
 import re
+import os
 import asyncio
 import aiohttp
 from collections import deque
 from contextlib import ExitStack
 from datetime import datetime
 from pathlib import Path
-from typing import Type, Any, Callable, Union
+from typing import Type, Any, Callable, Union, List, Dict
 
 import dateparser
 import dpath.util
@@ -21,8 +22,7 @@ from .creds import get_sharefile_credentials
 from .helpers import to_snake, extract_attributes, get_key, to_pascal
 from .models import ListModel, Collection
 
-this = Path(__file__)
-logger = logging.getLogger(f"logger.{this.stem}")
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'WARNING'))
 
 __all__ = [
     'Event',
@@ -37,7 +37,9 @@ __all__ = [
 
 sf_creds = get_sharefile_credentials()
 
-BASE_URL = 'https://welocalize.sf-api.com/sf/v3'
+BASE_URL = os.environ.get('sharefile_base_url')
+if not BASE_URL:
+    raise AttributeError(f"No base url found in environment.")
 SF_REQUESTER = Requester(
     BASE_URL,
     creds=sf_creds
@@ -53,7 +55,7 @@ class MetaConfig(BaseModel):
 
 
 class ConfigModel(MetaConfig):
-    keys: list[str] = ['name', 'id']
+    keys: List[str] = ['name', 'id']
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -72,7 +74,6 @@ class ConfigModel(MetaConfig):
 
     @root_validator
     def validate_attributes(cls, values):
-        logger.debug(f"BEFORE [ConfigModel] [{cls.__name__}] root_validator {values=}")
         if values.get('attributes') is None:
             attributes = extract_attributes(values)
             values.update(
@@ -83,7 +84,6 @@ class ConfigModel(MetaConfig):
         for key, value in values.items():
             if klasses := value:
                 if isinstance(klasses, list) and all(isinstance(klass, BaseModel) for klass in klasses):
-                    logger.debug(f"[ConfigModel] [{cls.__name__}] {key=} {klasses=}")
                     klass = klasses[0].__class__
                     values.update(
                         {
@@ -96,7 +96,6 @@ class ConfigModel(MetaConfig):
                     'requester': SF_REQUESTER
                 }
             )
-        logger.debug(f"AFTER [ConfigModel] [{cls.__name__}] root_validator {values=}")
         return values
 
     @classmethod
@@ -105,7 +104,7 @@ class ConfigModel(MetaConfig):
         def __init__(
                 self,
                 *data,
-                keys_override: list[str] = None,
+                keys_override: List[str] = None,
                 transform_func: Callable[[str], str] = None
         ):
             super(ListModel, self).__init__(
@@ -115,7 +114,7 @@ class ConfigModel(MetaConfig):
 
             def index_attributes(
                     klasses,
-                    keys_override: list[str] = None,
+                    keys_override: List[str] = None,
                     transform_func: Callable[[str], str] = None
             ):
                 keys = keys_override if keys_override else cls.__fields__.get('keys').default
@@ -146,7 +145,7 @@ class ConfigModel(MetaConfig):
                         {
                             '__annotations__': {
                                 'klass': Type[cls],
-                                'klasses': list[cls]
+                                'klasses': List[cls]
                             },
                             '__module__': cls.__module__
                         }
@@ -164,7 +163,7 @@ class ConfigModel(MetaConfig):
             {
                 '__annotations__': {
                     'klass': Type[cls],
-                    'klasses': list[cls]
+                    'klasses': List[cls]
                 },
                 '__module__': cls.__module__,
                 '__init__': __init__
@@ -175,7 +174,7 @@ class ConfigModel(MetaConfig):
     def s(
             cls,
             *klasses,
-            keys_override: list[str] = None,
+            keys_override: List[str] = None,
             transform_func: Callable[[str], str] = None
     ):
         ClassList = cls.construct_list_class()
@@ -188,7 +187,7 @@ class ConfigModel(MetaConfig):
 
 
 class Event(ConfigModel):
-    keys: list[str] = ['upload_file_name']
+    keys: List[str] = ['upload_file_name']
     parent_id: str = None
     additional_info: str = None
     event_id: str = None
@@ -423,7 +422,7 @@ class Info(ConfigModel):
 
 
 class Share(ConfigModel):
-    keys: list[str] = ['alias_id']
+    keys: List[str] = ['alias_id']
     alias_id: str = None
     share_type: str = None
     title: str = None
@@ -482,7 +481,7 @@ class Share(ConfigModel):
 
 
 class Note(ConfigModel):
-    keys: list[str] = ['name', 'id']
+    keys: List[str] = ['name', 'id']
     name: str = None
     file_name: str = None
     creation_date: datetime = None
@@ -530,7 +529,7 @@ class Note(ConfigModel):
 
 
 class File(ConfigModel):
-    keys: list[str] = ['name']
+    keys: List[str] = ['name']
     parent: ParentFolder = None
     hash: str = None
     virus_status: str = None
@@ -620,10 +619,19 @@ class File(ConfigModel):
             f.write(self.requester.content)
         return dl
 
+    def delete(self):
+        self.requester(
+            'DELETE',
+            params={
+                'singleversion': False,
+                'forceSync': False
+            }
+        )
+
 
 class Folder(File):
     id: str = None
-    keys: list[str] = ['name']
+    keys: List[str] = ['name']
     parent: ParentFolder = None
     file_count: int = None
     info: Info = None
@@ -936,6 +944,13 @@ class Folder(File):
             is_deep=is_deep
         )
 
+    def get_child_item_by_name(self, query: str):
+        results = []
+        for child in self.children:
+            if query in child.name:
+                results.append(child)
+        return results[0] if len(results) == 1 else results
+
 
 class TemplateFolder(Folder):
     def __init__(self, folder_id: str = None, **attributes):
@@ -967,7 +982,7 @@ class TemplateFolder(Folder):
 class ProductionFolder(Folder):
     pattern: str = None
     template: TemplateFolder = None
-    production_folders: list[Folder]
+    production_folders: List[Folder]
 
     def __init__(
             self,
@@ -1056,8 +1071,8 @@ class User(ConfigModel):
     date_created: datetime = None
     domain: str = None
     email: str = None
-    email_addresses: list[dict[str, Any]] = None
-    emails: list[str] = None
+    email_addresses: List[Dict[str, Any]] = None
+    emails: List[str] = None
     first_name: str = None
     full_name: str = None
     full_name_short: str = None
@@ -1067,14 +1082,14 @@ class User(ConfigModel):
     is_deleted: bool = False
     last_name: str = False
     referred_by: str = None
-    roles: list[str] = None
+    roles: List[str] = None
     total_shared_files: int = None
     username: str = None
     odata_metadata: HttpUrl = None
     odata_type: str = None
     url: HttpUrl = None
     requester: Requester = None
-    attributes: dict[str, Any] = None
+    attributes: Dict[str, Any] = None
 
     @classmethod
     def create(

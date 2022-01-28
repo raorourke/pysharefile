@@ -12,8 +12,7 @@ import requests
 from bs4 import BeautifulSoup
 from http_requester.creds import UserCreds, Credentials
 
-this = Path(__file__)
-logger = logging.getLogger(f"logger.{this.stem}")
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'WARNING'))
 
 okta_api_key = os.environ.get('okta_api_key')
 client_id = os.environ.get('sharefile_client_id')
