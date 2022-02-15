@@ -25,6 +25,10 @@ okta_base_url = f"https://{okta_subdomain}.okta.com/api/v1"
 
 TOKEN_DIR = Path.home() / '.tokens'
 
+BASE_URL = os.environ.get('sharefile_base_url')
+if not BASE_URL:
+    raise AttributeError(f"No base url found in environment.")
+
 my_okta = UserCreds(
     'okta_username',
     'okta_password',
@@ -199,7 +203,7 @@ def get_sharefile_credentials(
                 expiration=expiration,
                 client_id=client_id,
                 client_secret=client_secret,
-                token_url='https://welocalize.sf-api.com/oauth/token',
+                token_url=BASE_URL,
                 format_matrix=(
                     ('Authorization', ('Bearer {}', 'token')),
                 ),

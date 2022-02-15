@@ -1,24 +1,23 @@
 from __future__ import annotations
 
 import logging
-import re
 import os
-import asyncio
-import aiohttp
+import re
 from collections import deque
 from contextlib import ExitStack
 from datetime import datetime
 from pathlib import Path
 from typing import Type, Any, Callable, Union, List, Dict
 
+import aiohttp
+import asyncio
 import dateparser
 import dpath.util
 from dateutil import parser
-from fuzzywuzzy import process
 from http_requester.requester import Requester
 from pydantic import HttpUrl, BaseModel, Extra, root_validator, validator
 
-from .creds import get_sharefile_credentials
+from .creds import get_sharefile_credentials, BASE_URL
 from .helpers import to_snake, extract_attributes, get_key, to_pascal
 from .models import ListModel, Collection
 
@@ -37,9 +36,6 @@ __all__ = [
 
 sf_creds = get_sharefile_credentials()
 
-BASE_URL = os.environ.get('sharefile_base_url')
-if not BASE_URL:
-    raise AttributeError(f"No base url found in environment.")
 SF_REQUESTER = Requester(
     BASE_URL,
     creds=sf_creds
@@ -821,13 +817,6 @@ class Folder(File):
         if children := getattr(self, 'children', None):
             return getattr(children, 'notes', None)
 
-    def query_children(self, query):
-        item = process.extractOne(
-            query,
-            (child.name for child in self.children)
-        )[0]
-        return getattr(self.children, to_snake(item))
-
     def rename(self, new_name: str, overwrite: bool = False):
         self.requester(
             'PATCH',
@@ -901,7 +890,6 @@ class Folder(File):
     ):
 
         async def async_upload(fnames):
-
             async def _upload(filenames):
                 async with aiohttp.ClientSession() as session:
                     self.requester(
@@ -929,7 +917,6 @@ class Folder(File):
             await _upload(fnames)
 
         return asyncio.run(async_upload(filenames))
-
 
     def get_events(
             self,
