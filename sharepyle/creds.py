@@ -21,6 +21,8 @@ class MissingConfiguration(IOError):
 
 
 SHAREPYLE_CONFIG_PATH = os.environ.get('SHAREPYLE_CONFIG_PATH', Path.home() / '.config' / 'sharepyle')
+if isinstance(SHAREPYLE_CONFIG_PATH, str):
+    SHAREPYLE_CONFIG_PATH = Path(SHAREPYLE_CONFIG_PATH)
 if not SHAREPYLE_CONFIG_PATH:
     raise MissingConfiguration('Missing local configuration path!')
 SHAREPYLE_CONFIG_FILE = SHAREPYLE_CONFIG_PATH / 'config.yaml'
