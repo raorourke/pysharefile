@@ -17,7 +17,7 @@ from dateutil import parser
 from http_requester.requester import Requester
 from pydantic import HttpUrl, BaseModel, Extra, root_validator, validator
 
-from .creds import get_sharefile_credentials, BASE_URL
+from .creds import get_sharefile_credentials, SHAREFILE_BASE_URL
 from .helpers import to_snake, extract_attributes, get_key, to_pascal
 from .models import ListModel, Collection
 
@@ -37,7 +37,7 @@ __all__ = [
 sf_creds = get_sharefile_credentials()
 
 SF_REQUESTER = Requester(
-    BASE_URL,
+    SHAREFILE_BASE_URL,
     creds=sf_creds
 )
 
@@ -565,7 +565,7 @@ class File(ConfigModel):
     def configure_requester(cls, v, values):
         if not v and (item_id := values.get('id')):
             return Requester(
-                f"{BASE_URL}/Items({item_id})",
+                f"{SHAREFILE_BASE_URL}/Items({item_id})",
                 creds=sf_creds
             )
         return v
@@ -671,7 +671,7 @@ class Folder(File):
     ):
         if folder_id and not attributes:
             requester = Requester(
-                f"{BASE_URL}/Items({folder_id})",
+                f"{SHAREFILE_BASE_URL}/Items({folder_id})",
                 creds=sf_creds
             )
             requester(
@@ -700,11 +700,11 @@ class Folder(File):
         if (folder_id := values.get('id')):
             if not requester:
                 return Requester(
-                    f"{BASE_URL}/Items({folder_id})",
+                    f"{SHAREFILE_BASE_URL}/Items({folder_id})",
                     creds=sf_creds
                 )
             if folder_id not in requester.base_url:
-                requester.base_url = f"{BASE_URL}/Items({folder_id})"
+                requester.base_url = f"{SHAREFILE_BASE_URL}/Items({folder_id})"
         return requester
 
     def json(self, exclude: dict = None, by_alias: bool = True):
@@ -980,7 +980,7 @@ class ProductionFolder(Folder):
     ):
         if folder_id:
             requester = Requester(
-                f"{BASE_URL}/Items({folder_id})",
+                f"{SHAREFILE_BASE_URL}/Items({folder_id})",
                 creds=sf_creds
             )
             requester(
