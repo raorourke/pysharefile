@@ -918,6 +918,26 @@ class Folder(File):
 
         return asyncio.run(async_upload(filenames))
 
+    def download_recursive(self, download_dir: Path):
+        self.get_children()
+        if not self.children:
+            return
+        for item in self.children.items:
+            if isinstance(item, Folder):
+                dl_dir = download_dir / item.name
+                dl_dir.mkdir(exist_ok=True)
+                item.get_children()
+                if (child_items := item.children):
+                    for child_item in child_items:
+                        if isinstance(child_item, Folder):
+                            child_folder = dl_dir / child_item.name
+                            child_folder.mkdir(exist_ok=True)
+                            child_item.download_recursive(download_dir=child_folder)
+                            continue
+                        child_item.download(dl_dir)
+                continue
+            item.download(download_dir)
+
     def get_events(
             self,
             last: str = None,
