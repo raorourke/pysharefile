@@ -7,9 +7,9 @@ import secrets
 import time
 import urllib.parse
 from pathlib import Path
-import yaml
 
 import requests
+import yaml
 from bs4 import BeautifulSoup
 from http_requester.creds import UserCreds, Credentials
 
@@ -44,6 +44,8 @@ SHAREFILE_OKTA_APP_ID = SHAREPYLE_CONFIG['okta']['app_id']
 
 if not SHAREFILE_BASE_URL:
     raise AttributeError(f"No base url found in environment.")
+
+TOKEN_PATH = os.environ.get('TOKEN_PATH')
 
 my_okta = UserCreds(
     'okta_username',
@@ -187,14 +189,14 @@ def get_sharefile_access_tokens(code: str, client_id: str, client_secret: str, s
 
 def get_sharefile_credentials(
         session: requests.Session = None,
-        force_refresh: bool = True
+        force_refresh: bool = False
 ) -> Credentials:
     """Shows basic usage of the People API.
     Prints the name of the first 10 connections.
     """
     creds = None
     if not force_refresh:
-        token_path = TOKEN_DIR / 'sftoken.pickle'
+        token_path = TOKEN_PATH / 'sftoken.pickle'
         if os.path.exists(token_path):
             with open(token_path, 'rb') as token:
                 creds = pickle.load(token)
@@ -227,7 +229,6 @@ def get_sharefile_credentials(
                 ),
                 refresh_func=sf_refresh
             )
-        if not force_refresh:
-            with open(token_path, 'wb') as token:
-                pickle.dump(creds, token)
+        with open(token_path, 'wb') as token:
+            pickle.dump(creds, token)
     return creds
