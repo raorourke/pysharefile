@@ -46,6 +46,8 @@ if not SHAREFILE_BASE_URL:
     raise AttributeError(f"No base url found in environment.")
 
 TOKEN_PATH = os.environ.get('TOKEN_PATH')
+if isinstance(TOKEN_PATH, str):
+    TOKEN_PATH = Path(TOKEN_PATH)
 
 my_okta = UserCreds(
     'okta_username',
