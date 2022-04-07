@@ -45,7 +45,8 @@ SHAREFILE_OKTA_APP_ID = SHAREPYLE_CONFIG['okta']['app_id']
 if not SHAREFILE_BASE_URL:
     raise AttributeError(f"No base url found in environment.")
 
-TOKEN_PATH = os.environ.get('TOKEN_PATH')
+TOKEN_PATH = os.environ.get('TOKEN_PATH', Path.home() / '.tokens')
+
 if isinstance(TOKEN_PATH, str):
     TOKEN_PATH = Path(TOKEN_PATH)
 
