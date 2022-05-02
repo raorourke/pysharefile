@@ -45,11 +45,6 @@ SHAREFILE_OKTA_APP_ID = SHAREPYLE_CONFIG['okta']['app_id']
 if not SHAREFILE_BASE_URL:
     raise AttributeError(f"No base url found in environment.")
 
-TOKEN_PATH = os.environ.get('TOKEN_PATH', Path.home() / '.tokens')
-
-if isinstance(TOKEN_PATH, str):
-    TOKEN_PATH = Path(TOKEN_PATH)
-
 my_okta = UserCreds(
     'okta_username',
     'okta_password',
@@ -197,6 +192,11 @@ def get_sharefile_credentials(
     """Shows basic usage of the People API.
     Prints the name of the first 10 connections.
     """
+    TOKEN_PATH = os.environ.get('TOKEN_PATH', Path.home() / '.tokens')
+
+    if isinstance(TOKEN_PATH, str):
+        TOKEN_PATH = Path(TOKEN_PATH)
+
     creds = None
     if not force_refresh:
         token_path = TOKEN_PATH / 'sftoken.pickle'
