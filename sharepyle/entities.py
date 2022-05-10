@@ -28,7 +28,7 @@ __all__ = [
     'MainClass',
     'File',
     'Folder',
-    'FavoriteFolder'
+    'FavoriteFolder',
     'ParentFolder',
     'TemplateFolder',
     'ProductionFolder'
