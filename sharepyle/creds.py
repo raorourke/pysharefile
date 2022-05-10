@@ -84,7 +84,7 @@ def sf_refresh(self):
     self._token = r.json().get('access_token')
     self._refresh_token = r.json().get('refresh_token')
     self._expiration = datetime.datetime.fromtimestamp(
-        millinow() / 1000 + r.json().get('expires_in')
+        millinow() / 1000 + r.json().get('expires_in', 36000)
     )
 
 
